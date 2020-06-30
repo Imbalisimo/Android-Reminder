@@ -18,6 +18,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -50,8 +51,9 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
                 String description =((EditText)findViewById(R.id.editText_description)).getText().toString();
+                boolean isAnnual = ((Switch)findViewById(R.id.switch_annual)).isChecked();
 
-                if(!DatabaseManager.Insert(year, month, day, description))
+                if(!DatabaseManager.Insert(new EventDataModel(DateConverter.DateToInt(year, month, day), description, isAnnual)))
                     Toast.makeText(getBaseContext(), "Entry failed", Toast.LENGTH_LONG).show();
 
                 year = 0;
@@ -75,9 +77,7 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = getIntent();
         if(intent.getAction() == ReminderService.ACTION){
             String events = getIntent().getStringExtra("events");
-            for(String event : events.split("\n")){
-                DatabaseManager.Delete(event);
-            }
+            Toast.makeText(this, "removed events:" + events, Toast.LENGTH_LONG).show();
         }
         createNotificationChannel();
         startReminderService();

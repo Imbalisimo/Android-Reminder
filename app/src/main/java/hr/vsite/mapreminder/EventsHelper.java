@@ -7,12 +7,13 @@ import android.database.sqlite.SQLiteOpenHelper;
 import hr.vsite.mapreminder.EventsContract;
 
 public class EventsHelper extends SQLiteOpenHelper {
-    static final int VERSION = 1;
+    static final int VERSION = 2;
     static final String SCRIPT_CREATE_EVENTS_TABLE =
             "CREATE TABLE " + EventsContract.Event.TABLE_NAME + " ( "  +
                     EventsContract.Event._ID + " INTEGER PRIMARY KEY, " +
                     EventsContract.Event.ROW_DESCRIPTION + " TEXT, " +
-                    EventsContract.Event.ROW_DATE + " INTEGER " +
+                    EventsContract.Event.ROW_DATE + " INTEGER, " +
+                    EventsContract.Event.ROW_ANNUAL + " INTEGER " +
                     ");";
     static final String SCRIPT_DELETE_EVENTS_TABLE =
             "DROP TABLE " + EventsContract.Event.TABLE_NAME + ";";

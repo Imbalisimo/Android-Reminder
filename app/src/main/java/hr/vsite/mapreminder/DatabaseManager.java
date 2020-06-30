@@ -5,6 +5,9 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import hr.vsite.mapreminder.DateConverter;
 
 public class DatabaseManager {
@@ -23,20 +26,21 @@ public class DatabaseManager {
         resolver = cr;
     }
 
-    public static boolean Insert(int year, int month, int day, String description)
+    public static boolean Insert(EventDataModel event)
     {
         ContentValues values = new ContentValues();
-        values.put(EventsContract.Event.ROW_DESCRIPTION, description);
-        values.put(EventsContract.Event.ROW_DATE, DateConverter.DateToInt(year, month, day));
+        values.put(EventsContract.Event.ROW_DESCRIPTION, event.getDescription());
+        values.put(EventsContract.Event.ROW_DATE, event.getDate());
+        values.put(EventsContract.Event.ROW_ANNUAL, event.isAnnual() ? 1 : 0);
         return resolver.insert(uri, values) != Uri.EMPTY;
     }
 
-    public static String SelectAll()
+    public static List<EventDataModel> SelectAll()
     {
         return Select(null, null);
     }
 
-    public static String SelectDate(int date)
+    public static List<EventDataModel> SelectDate(int date)
     {
         String whereClause = EventsContract.Event.ROW_DATE + " = ?";
         String[] whereArgs = new String[] {
@@ -46,47 +50,34 @@ public class DatabaseManager {
         return Select(whereClause, whereArgs);
     }
 
-    private static String Select(String selection, String[] selectionsArgs)
+    private static List<EventDataModel> Select(String selection, String[] selectionsArgs)
     {
         String[] rows = new String[]{
                 EventsContract.Event.ROW_DESCRIPTION,
-                EventsContract.Event.ROW_DATE
+                EventsContract.Event.ROW_DATE,
+                EventsContract.Event.ROW_ANNUAL
         };
 
         Cursor cursor = resolver.query(uri, rows, selection, selectionsArgs, null);
-        if (cursor == null) return "";
 
-        StringBuilder builder = new StringBuilder();
+        List<EventDataModel> events = new ArrayList<>();
+        if (cursor == null) return events;
+
         while(cursor.moveToNext()) {
             int date = cursor.getInt(cursor.getColumnIndex(EventsContract.Event.ROW_DATE));
-            builder.append(DateConverter.Day(date));
-            builder.append(".");
-            builder.append(DateConverter.Month(date));
-            builder.append(".");
-            builder.append(DateConverter.Year(date));
-            builder.append(",");
-            builder.append(cursor.getString(cursor.getColumnIndex(EventsContract.Event.ROW_DESCRIPTION)));
-            builder.append("\n");
+            String desc = cursor.getString(cursor.getColumnIndex(EventsContract.Event.ROW_DESCRIPTION));
+            boolean annual = cursor.getInt(cursor.getColumnIndex(EventsContract.Event.ROW_ANNUAL)) == 1;
+            events.add(new EventDataModel(date, desc, annual));
         }
-        return builder.toString();
+        return events;
     }
 
-    public static void Delete(String event)
+    public static void Delete(EventDataModel event)
     {
-        String[] tokens = event.split(",");
-        String description = tokens[1];
-
-        String[] date = tokens[0].split("\\.");
-        int day = Integer.parseInt(date[0]);
-        int month = Integer.parseInt(date[1]);
-        int year = Integer.parseInt(date[2]);
-
-//        String whereClause = EventsContract.Event.ROW_DESCRIPTION + " = " + description +
-//                " AND " + EventsContract.Event.ROW_DATE + " = " + String.valueOf(DateConverter.DateToInt(year, month, day));
         String whereClause = EventsContract.Event.ROW_DESCRIPTION + " = ? AND " + EventsContract.Event.ROW_DATE + " = ? ";
         String[] whereArgs = new String[] {
-                description,
-                String.valueOf(DateConverter.DateToInt(year, month, day))
+                event.getDescription(),
+                String.valueOf(event.getDate())
         };
 
         resolver.delete(uri, whereClause, whereArgs);

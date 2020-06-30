@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Calendar;
+import java.util.List;
 
 /**
  * An {@link IntentService} subclass for handling asynchronous task requests in
@@ -35,15 +36,31 @@ public class ReminderService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         if (intent != null) {
+            writeCurrentDate(getCurrentDate()-1);
             while(true)
             {
                 int currentDate = getCurrentDate();
                 int i = getLastDateEntry();
                 if(i > 0) {
                     for (++i; currentDate >= i; ++i) {
-                        String text = DatabaseManager.SelectDate(i);
-                        if (text != "")
-                            riseNotification(text);
+                        List<EventDataModel> events = DatabaseManager.SelectDate(i);
+                        StringBuilder sb = new StringBuilder();
+                        for(EventDataModel event : events){
+                            sb.append(event.toString());
+                        }
+
+                        if(sb.toString() != "")
+                            riseNotification(sb.toString());
+
+                        for(EventDataModel event : events){
+                            DatabaseManager.Delete(event);
+                            if(event.isAnnual())
+                                DatabaseManager.Insert(
+                                        new EventDataModel(
+                                                DateConverter.DateToInt(event.getYear() + 1, event.getMonth(), event.getDay()),
+                                                event.getDescription(),
+                                                event.isAnnual()));
+                        }
 
                         writeCurrentDate(currentDate);
                     }

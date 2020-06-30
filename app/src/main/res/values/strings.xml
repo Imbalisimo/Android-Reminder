@@ -6,6 +6,7 @@
     <string name="bt_all">See all</string>
     <string name="bt_date">Date</string>
     <string name="lb_description">Description</string>
+    <string name="lb_annual">Annually</string>
 
     <string name="channel_description">Reminds</string>
     <string name="channel_name">Reminder</string>

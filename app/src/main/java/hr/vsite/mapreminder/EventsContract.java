@@ -9,5 +9,6 @@ public final class EventsContract {
         public static final String TABLE_NAME = "Event";
         public static final String ROW_DESCRIPTION = "description";
         public static final String ROW_DATE = "date";
+        public static final String ROW_ANNUAL = "annually";
     }
 }

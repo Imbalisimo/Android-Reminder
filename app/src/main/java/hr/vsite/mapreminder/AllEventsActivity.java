@@ -17,19 +17,20 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class AllEventsActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager layoutManager;
-    private String[] myDataset;
+    private List<EventDataModel> myDataset;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_all_events);
 
-        myDataset = DatabaseManager.SelectAll().split("\n");
+        myDataset = DatabaseManager.SelectAll();
         recyclerView = (RecyclerView)findViewById(R.id.rvall);
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
@@ -50,7 +51,7 @@ public class AllEventsActivity extends AppCompatActivity {
     }
 
     public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
-        private String[] mDataset;
+        private List<EventDataModel> mDataset;
 
         private int position = -1;
 
@@ -97,7 +98,7 @@ public class AllEventsActivity extends AppCompatActivity {
         }
 
         // Provide a suitable constructor (depends on the kind of dataset)
-        public MyAdapter(String[] myDataset) {
+        public MyAdapter(List<EventDataModel> myDataset) {
             mDataset = myDataset;
         }
 
@@ -118,7 +119,7 @@ public class AllEventsActivity extends AppCompatActivity {
         public void onBindViewHolder(MyViewHolder holder, final int position) {
             // - get element from your dataset at this position
             // - replace the contents of the view with that element
-            holder.textView.setText(mDataset[position]);
+            holder.textView.setText(mDataset.get(position).toString());
 
             holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
@@ -127,13 +128,12 @@ public class AllEventsActivity extends AppCompatActivity {
                     return false;
                 }
             });
-//            holder.itemView.setBackgroundColor(getPosition() == position ? Color.GREEN : Color.TRANSPARENT);
         }
 
         // Return the size of your dataset (invoked by the layout manager)
         @Override
         public int getItemCount() {
-            return mDataset.length;
+            return mDataset.size();
         }
     }
 
@@ -147,12 +147,10 @@ public class AllEventsActivity extends AppCompatActivity {
         }
         switch (item.getItemId()) {
             case R.menu.recycle:
-                ArrayList<String> strings = new ArrayList<String>(Arrays.asList(myDataset));
-                DatabaseManager.Delete(strings.get(position));
-                strings.remove(position);
-                strings.toArray(myDataset);
+                DatabaseManager.Delete(myDataset.get(position));
+                myDataset.remove(position);
                 mAdapter.notifyItemRemoved(position);
-                mAdapter.notifyItemRangeChanged(position, myDataset.length);
+                mAdapter.notifyItemRangeChanged(position, myDataset.size());
                 break;
         }
         return super.onContextItemSelected(item);
