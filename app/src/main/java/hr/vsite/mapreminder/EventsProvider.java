@@ -71,7 +71,7 @@ public class EventsProvider extends ContentProvider {
                 EventsHelper helper = new EventsHelper(getContext());
                 try {
                     SQLiteDatabase db = helper.getReadableDatabase();
-                    Cursor cursor =  db.query(EventsContract.Event.TABLE_NAME, projection, selection, selectionArgs,null,null,null);
+                    Cursor cursor =  db.query(EventsContract.Event.TABLE_NAME, projection, selection, selectionArgs,null,null, EventsContract.Event.ROW_DATE);
                     return cursor;
                 } catch (android.database.SQLException ex){
                     ex.printStackTrace();

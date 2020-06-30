@@ -36,7 +36,6 @@ public class ReminderService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         if (intent != null) {
-            writeCurrentDate(getCurrentDate()-1);
             while(true)
             {
                 int currentDate = getCurrentDate();
